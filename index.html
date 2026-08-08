@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partes de trabajo</title>
+<style>
+  :root{
+    --bg:#15181d;
+    --panel:#1e232b;
+    --panel-2:#262c35;
+    --line:#333a46;
+    --text:#eceff2;
+    --muted:#8b93a1;
+    --accent:#ffc53d;
+    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased; padding-bottom:60px; }
+  header{ padding:22px 18px 16px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:10; }
+  header .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--accent); text-transform:uppercase; margin-bottom:4px; }
+  header h1{ margin:0; font-size:21px; font-weight:700; }
+  .apiwarn{ display:none; margin-top:10px; padding:9px 11px; background:#3a2a12; border:1px solid #6b4a1c; color:#ffd88a; font-size:12px; border-radius:8px; font-family:var(--mono); }
+  nav{ display:flex; gap:6px; padding:12px 18px 0; }
+  nav button{ flex:1; padding:10px 8px; background:none; border:1px solid var(--line); color:var(--muted); border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--sans); }
+  nav button.active{ background:var(--accent); border-color:var(--accent); color:#1a1a1a; }
+  main{ padding:18px; max-width:560px; margin:0 auto; }
+  section{ display:none; }
+  section.active{ display:block; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; }
+  label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.04em; }
+  input[type=text], input[type=date], input[type=number], textarea, select{ width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text); padding:10px 11px; border-radius:8px; font-size:15px; font-family:var(--sans); margin-bottom:14px; }
+  textarea{ min-height:70px; resize:vertical; }
+  .material-row{ display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .material-row select{ flex:2; margin-bottom:0; }
+  .material-row input{ flex:1; margin-bottom:0; }
+  .icon-btn{ background:var(--panel-2); border:1px solid var(--line); color:var(--muted); width:36px; height:36px; border-radius:8px; font-size:16px; cursor:pointer; flex:0 0 auto; }
+  .add-link{ background:none; border:none; color:var(--accent); font-size:13px; font-weight:600; cursor:pointer; padding:6px 0; font-family:var(--sans); }
+  .subhead{ font-size:13px; font-weight:700; color:var(--text); margin:16px 0 8px; }
+  .subhead:first-child{ margin-top:0; }
+  .primary-btn{ width:100%; padding:14px; background:var(--accent); color:#1a1a1a; border:none; border-radius:9px; font-size:15px; font-weight:700; cursor:pointer; margin-top:6px; }
+  .primary-btn:disabled{ opacity:.5; }
+  .ghost-btn{ width:100%; padding:12px; background:none; color:var(--muted); border:1px solid var(--line); border-radius:9px; font-size:14px; font-weight:600; cursor:pointer; margin-top:8px; }
+  .receipt{ background:#fdfcf8; color:#1a1a1a; border-radius:4px; padding:20px; font-family:var(--mono); font-size:13px; border:1px dashed #999; }
+  .receipt h2{ font-size:15px; margin:0 0 2px; letter-spacing:.05em; }
+  .receipt .meta{ color:#666; font-size:11px; margin-bottom:14px; }
+  .receipt .line{ display:flex; justify-content:space-between; padding:3px 0; }
+  .receipt hr{ border:none; border-top:1px dashed #bbb; margin:10px 0; }
+  .receipt .total{ font-size:16px; font-weight:700; }
+  .receipt .section-title{ font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:#888; margin:12px 0 4px; }
+  .hist-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 4px; border-bottom:1px solid var(--line); cursor:pointer; }
+  .hist-item:last-child{ border-bottom:none; }
+  .hist-item .cli{ font-weight:600; font-size:14px; }
+  .hist-item .fecha{ font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .hist-item .total{ font-family:var(--mono); color:var(--accent); font-weight:700; }
+  .empty{ color:var(--muted); font-size:13px; text-align:center; padding:30px 0; }
+  .notice{ font-size:12px; color:var(--muted); background:var(--panel-2); border:1px solid var(--line); padding:10px 12px; border-radius:8px; margin-bottom:14px; line-height:1.5; }
+  .field-price{ font-family:var(--mono); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Cuadrilla · Registro de obra</div>
+  <h1>Partes de trabajo</h1>
+  <div class="apiwarn" id="apiwarn">⚠ Falta configurar la URL de Google Apps Script en el código (constante API_URL) para que esto guarde datos.</div>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="nuevo">Nuevo parte</button>
+  <button class="tab-btn" data-tab="precios">Precios</button>
+  <button class="tab-btn" data-tab="historial">Historial</button>
+</nav>
+
+<main>
+  <section id="nuevo" class="active">
+    <div class="card">
+      <label>Cliente</label>
+      <input type="text" id="cliente" placeholder="Nombre del cliente">
+      <label>Fecha</label>
+      <input type="date" id="fecha">
+
+      <div class="subhead">Material llevado</div>
+      <div id="llevadoList"></div>
+      <button class="add-link" onclick="addMaterialRow('llevadoList')">+ Añadir material</button>
+
+      <div class="subhead">Material que vuelve</div>
+      <div id="devueltoList"></div>
+      <button class="add-link" onclick="addMaterialRow('devueltoList')">+ Añadir material</button>
+
+      <div class="subhead">Trabajo realizado</div>
+      <textarea id="trabajo" placeholder="Descripción de lo hecho"></textarea>
+
+      <div class="subhead">Horas</div>
+      <input type="number" id="horas" step="0.5" min="0" placeholder="0">
+
+      <button class="primary-btn" id="guardarBtn" onclick="guardarParte()">Guardar parte y generar factura</button>
+    </div>
+    <div class="card" id="reciboBox" style="display:none;"></div>
+  </section>
+
+  <section id="precios">
+    <div class="card">
+      <div class="notice">Estos precios y el precio/hora se guardan en la hoja de Google Sheets: todo el que abra esta página los ve y puede editarlos.</div>
+      <label>Precio por hora (€)</label>
+      <input type="number" id="precioHora" step="0.5" min="0">
+      <div class="subhead">Materiales</div>
+      <div id="catalogList"></div>
+      <button class="add-link" onclick="addCatalogRow()">+ Añadir material</button>
+      <button class="primary-btn" onclick="guardarCatalogo()">Guardar precios</button>
+    </div>
+  </section>
+
+  <section id="historial">
+    <div class="card">
+      <div id="histList"><div class="empty">Cargando…</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+// === CONFIGURA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT (termina en /exec) ===
+const API_URL = 'PEGA_AQUI_TU_URL_DE_GOOGLE_APPS_SCRIPT';
+// ==========================================================================
+
+let catalogo = { precioHora: 0, materiales: [] };
+
+function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text !== undefined) e.textContent = text; return e; }
+
+function apiConfigured(){ return API_URL && !API_URL.startsWith('PEGA_AQUI'); }
+
+async function apiGet(action){
+  const res = await fetch(`${API_URL}?action=${action}`);
+  return res.json();
+}
+async function apiPost(action, payload){
+  const res = await fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action, payload})
+  });
+  return res.json();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab === 'historial') loadHistorial();
+  };
+});
+
+async function loadCatalogo(){
+  if(!apiConfigured()){ document.getElementById('apiwarn').style.display='block'; return; }
+  try{
+    catalogo = await apiGet('getCatalogo');
+    if(!catalogo.materiales) catalogo.materiales = [];
+  }catch(e){ console.error(e); }
+  renderCatalog();
+  renderMaterialSelects();
+}
+
+function renderCatalog(){
+  document.getElementById('precioHora').value = catalogo.precioHora || '';
+  const box = document.getElementById('catalogList');
+  box.innerHTML = '';
+  catalogo.materiales.forEach((m, i)=>{
+    const row = el('div','material-row');
+    const name = document.createElement('input');
+    name.type='text'; name.value=m.name; name.placeholder='Material';
+    name.oninput = ()=> catalogo.materiales[i].name = name.value;
+    const price = document.createElement('input');
+    price.type='number'; price.step='0.01'; price.value=m.price; price.placeholder='€/ud'; price.className='field-price';
+    price.oninput = ()=> catalogo.materiales[i].price = parseFloat(price.value)||0;
+    const del = el('button','icon-btn','×');
+    del.onclick = ()=>{ catalogo.materiales.splice(i,1); renderCatalog(); };
+    row.append(name, price, del);
+    box.appendChild(row);
+  });
+}
+
+function addCatalogRow(){ catalogo.materiales.push({name:'', price:0}); renderCatalog(); }
+
+async function guardarCatalogo(){
+  if(!apiConfigured()){ alert('Falta configurar API_URL en el código.'); return; }
+  catalogo.precioHora = parseFloat(document.getElementById('precioHora').value) || 0;
+  try{
+    await apiPost('saveCatalogo', catalogo);
+    renderMaterialSelects();
+    alert('Precios guardados');
+  }catch(e){ alert('No se pudo guardar. Revisa la conexión.'); }
+}
+
+function renderMaterialSelects(){
+  document.querySelectorAll('.material-row select').forEach(sel=>{
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Elige material…</option>' + catalogo.materiales.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+    sel.value = current;
+  });
+}
+
+function addMaterialRow(listId){
+  const row = el('div','material-row');
+  const sel = document.createElement('select');
+  sel.innerHTML = '<option value="">Elige material…</option>' + catalogo.materiales.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+  const qty = document.createElement('input');
+  qty.type='number'; qty.min='0'; qty.step='1'; qty.placeholder='Cant.';
+  const del = el('button','icon-btn','×');
+  del.onclick = ()=> row.remove();
+  row.append(sel, qty, del);
+  document.getElementById(listId).appendChild(row);
+}
+
+function readMaterialRows(listId){
+  const rows = [];
+  document.querySelectorAll('#'+listId+' .material-row').forEach(row=>{
+    const sel = row.querySelector('select');
+    const qty = row.querySelector('input');
+    const name = sel.value;
+    const cantidad = parseFloat(qty.value) || 0;
+    if(name && cantidad > 0){
+      const priceInfo = catalogo.materiales.find(m=>m.name===name);
+      rows.push({ name, cantidad, price: priceInfo ? priceInfo.price : 0 });
+    }
+  });
+  return rows;
+}
+
+async function guardarParte(){
+  if(!apiConfigured()){ alert('Falta configurar API_URL en el código.'); return; }
+  const cliente = document.getElementById('cliente').value.trim();
+  const fecha = document.getElementById('fecha').value || new Date().toISOString().slice(0,10);
+  const trabajo = document.getElementById('trabajo').value.trim();
+  const horas = parseFloat(document.getElementById('horas').value) || 0;
+  const llevado = readMaterialRows('llevadoList');
+  const devuelto = readMaterialRows('devueltoList');
+  if(!cliente){ alert('Falta el nombre del cliente'); return; }
+
+  const costeLlevado = llevado.reduce((s,m)=> s + m.cantidad*m.price, 0);
+  const costeDevuelto = devuelto.reduce((s,m)=> s + m.cantidad*m.price, 0);
+  const costeMaterial = costeLlevado - costeDevuelto;
+  const costeHoras = horas * (catalogo.precioHora || 0);
+  const total = costeMaterial + costeHoras;
+  const id = Date.now().toString();
+  const parte = { id, cliente, fecha, trabajo, horas, llevado, devuelto, costeMaterial, costeHoras, total };
+
+  const btn = document.getElementById('guardarBtn');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try{
+    await apiPost('saveParte', parte);
+    mostrarRecibo(parte);
+    document.getElementById('cliente').value='';
+    document.getElementById('trabajo').value='';
+    document.getElementById('horas').value='';
+    document.getElementById('llevadoList').innerHTML='';
+    document.getElementById('devueltoList').innerHTML='';
+  }catch(e){ alert('No se pudo guardar el parte. Revisa la conexión.'); }
+  btn.disabled = false; btn.textContent = 'Guardar parte y generar factura';
+}
+
+function mostrarRecibo(p){
+  const box = document.getElementById('reciboBox');
+  box.style.display='block';
+  const fmt = n => n.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2});
+  let matHtml = '';
+  p.llevado.forEach(m=>{ matHtml += `<div class="line"><span>${m.name} × ${m.cantidad}</span><span>${fmt(m.cantidad*m.price)} €</span></div>`; });
+  if(p.devuelto.length){
+    matHtml += `<div class="section-title">Devuelto (descontado)</div>`;
+    p.devuelto.forEach(m=>{ matHtml += `<div class="line"><span>${m.name} × ${m.cantidad}</span><span>-${fmt(m.cantidad*m.price)} €</span></div>`; });
+  }
+  box.innerHTML = `
+    <div class="receipt">
+      <h2>PARTE / FACTURA</h2>
+      <div class="meta">${p.fecha} · ${p.cliente}</div>
+      <div class="section-title">Material</div>
+      ${matHtml || '<div class="line"><span>—</span><span></span></div>'}
+      <hr>
+      <div class="line"><span>Horas (${p.horas} h)</span><span>${fmt(p.costeHoras)} €</span></div>
+      <hr>
+      <div class="line total"><span>TOTAL</span><span>${fmt(p.total)} €</span></div>
+      ${p.trabajo ? `<div class="section-title">Trabajo realizado</div><div>${p.trabajo}</div>` : ''}
+    </div>
+    <button class="ghost-btn" onclick="window.print()">Imprimir / guardar como PDF</button>
+  `;
+}
+
+async function loadHistorial(){
+  const box = document.getElementById('histList');
+  if(!apiConfigured()){ box.innerHTML = '<div class="empty">Configura API_URL para ver el historial</div>'; return; }
+  box.innerHTML = '<div class="empty">Cargando…</div>';
+  try{
+    const partes = await apiGet('getPartes');
+    if(!partes.length){ box.innerHTML = '<div class="empty">Todavía no hay partes guardados</div>'; return; }
+    partes.sort((a,b)=> b.id.localeCompare(a.id));
+    box.innerHTML = '';
+    const fmt = n => n.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2});
+    partes.forEach(p=>{
+      const row = el('div','hist-item');
+      row.innerHTML = `<div><div class="cli">${p.cliente}</div><div class="fecha">${p.fecha}</div></div><div class="total">${fmt(p.total)} €</div>`;
+      row.onclick = ()=>{ document.querySelector('.tab-btn[data-tab="nuevo"]').click(); mostrarRecibo(p); };
+      box.appendChild(row);
+    });
+  }catch(e){ box.innerHTML = '<div class="empty">No se pudo cargar el historial</div>'; }
+}
+
+document.getElementById('fecha').valueAsDate = new Date();
+loadCatalogo();
+</script>
+</body>
+</html>
